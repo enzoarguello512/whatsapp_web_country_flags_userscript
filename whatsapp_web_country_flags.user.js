@@ -62,8 +62,7 @@ const callingCodeToCountryTable =
     "86": "cn",
     "852": "hk",
     "853": "mo",
-    "61": "cx",
-    "61": "cc",
+    "61 (891)": "cc",
     "57": "co",
     "269": "km",
     "242": "cg",
@@ -227,7 +226,6 @@ const callingCodeToCountryTable =
     "970": "ps",
     "249": "sd",
     "597": "sr",
-    "47": "sj",
     "268": "sz",
     "46": "se",
     "41": "ch",
@@ -266,33 +264,47 @@ const callingCodeToCountryTable =
 };
 
 const maxCallingCodeLength = 7;
-const flagImagesFolderPath = "flags/";
+const flagImagesFolderPath = "https://raw.githubusercontent.com/todeit02/whatsapp_web_country_flags_userscript/master/flags/";
 const phoneNumberChatSelector = ".RZ7GO";
-const chatListElementSelector = "._2EXPL";
+const chatRowClass = "vW7d1";
+const initialInsertId = "main";
+const insertingFlagsClass = "phoneNumberCountryFlag";
 
-let phoneNumberChatNodes = [];
+debugger;
+const messageInsertObserver = new MutationObserver(insertFlags);
+const observerOptions = { childList: true, subtree: true };
+messageInsertObserver.observe(document, observerOptions);
 
 
-function insertFlags()
+function insertFlags(mutationRecords)
 {
-    debugger;
-    for(let i = 0; i < phoneNumberChatNodes.length; i++)
+    const addedPhoneNumberNodes = extractPhoneNumberNodes(mutationRecords);
+    for(let i = 0; i < addedPhoneNumberNodes.length; i++)
     {
-        const currentNode = phoneNumberChatNodes[i];
-        const phoneNumber = currentNode.textContent;
-    
-        for(let testingCallingCode of Object.keys(callingCodeToCountryTable))
+        const alreadyHasFlag = Array.from(addedPhoneNumberNodes[i].parentElement.children).some(nodeSibling => nodeSibling.classList.contains(insertingFlagsClass));
+        if(!alreadyHasFlag)
         {
-            // bug: possible longer match
-            if(phoneNumber.startsWith('+' + testingCallingCode))
-            {
-                const containedCountryFlag = createFlagImageInContainerNode(callingCodeToCountryTable[testingCallingCode]);    
-                currentNode.parentElement.insertBefore(containedCountryFlag, currentNode);
-                break;
-            }
+            insertFlag(addedPhoneNumberNodes[i]);
         }
     }
 };
+
+
+function insertFlag(phoneNumberNode)
+{
+    const phoneNumber = phoneNumberNode.textContent;
+    
+    for(let testingCallingCode of Object.keys(callingCodeToCountryTable))
+    {
+        // bug: possible longer match
+        if(phoneNumber.startsWith('+' + testingCallingCode))
+        {
+            const containedCountryFlag = createFlagImageInContainerNode(callingCodeToCountryTable[testingCallingCode]);    
+            phoneNumberNode.parentElement.insertBefore(containedCountryFlag, phoneNumberNode);
+            break;
+        }
+    }
+}
 
 
 function createFlagImageInContainerNode(iso31661alpha2countryCode)
@@ -302,9 +314,11 @@ function createFlagImageInContainerNode(iso31661alpha2countryCode)
     countryFlagContainer.style.alignItems = "center";
 
     const countryFlag = new Image();
+    countryFlag.classList.add(insertingFlagsClass);
     countryFlag.style.marginRight = "0.4em";
     countryFlag.style.height = "1em";    
     countryFlag.src = flagImagesFolderPath + '/' + iso31661alpha2countryCode + ".png";
+    countryFlag.title = iso31661alpha2countryCode;
 
     countryFlagContainer.appendChild(countryFlag);
 
@@ -312,8 +326,21 @@ function createFlagImageInContainerNode(iso31661alpha2countryCode)
 }
 
 
-$(document).on("click", chatListElementSelector, () =>
+function extractPhoneNumberNodes(mutationRecords)
 {
-    phoneNumberChatNodes = document.querySelectorAll(phoneNumberChatSelector);
-    insertFlags();
-});
+    const phoneNumberNodes = [];
+
+    mutationRecords.forEach(mutationRecord =>
+    {
+        mutationRecord.addedNodes.forEach(addedNode =>
+        {
+            const shouldContainPhoneNumberNodes = addedNode.classList.contains(chatRowClass) || addedNode.id === initialInsertId;
+            if(!shouldContainPhoneNumberNodes) return;
+
+            const phoneNumberNodesInElement = addedNode.querySelectorAll(phoneNumberChatSelector);
+            phoneNumberNodes.push(...phoneNumberNodesInElement);
+        });
+    });
+
+    return phoneNumberNodes;
+}
