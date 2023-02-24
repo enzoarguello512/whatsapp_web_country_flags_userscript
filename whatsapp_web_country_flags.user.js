@@ -265,7 +265,7 @@ const callingCodeToCountryTable =
 
 const maxCallingCodeLength = 7;
 const flagImagesFolderPath = "https://raw.githubusercontent.com/todeit02/whatsapp_web_country_flags_userscript/master/flags/";
-const phoneNumberChatSelector = ".RZ7GO";
+const phoneNumberChatSelector = ".WJuYU";
 const chatRowClass = "vW7d1";
 const initialInsertId = "main";
 const insertingFlagsClass = "phoneNumberCountryFlag";
@@ -334,7 +334,7 @@ function extractPhoneNumberNodes(mutationRecords)
     {
         mutationRecord.addedNodes.forEach(addedNode =>
         {
-            const shouldContainPhoneNumberNodes = addedNode.classList.contains(chatRowClass) || addedNode.id === initialInsertId;
+            const shouldContainPhoneNumberNodes = addedNode.getAttribute('role') === 'row' || addedNode.id === initialInsertId;
             if(!shouldContainPhoneNumberNodes) return;
 
             const phoneNumberNodesInElement = addedNode.querySelectorAll(phoneNumberChatSelector);
