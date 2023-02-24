@@ -6,7 +6,6 @@
 // @author       Tobias Deißler
 // @match        https://web.whatsapp.com/
 // @grant        none
-// @require      https://code.jquery.com/jquery-3.3.1.min.js
 // ==/UserScript==
 
 "use strict";
@@ -263,10 +262,8 @@ const callingCodeToCountryTable =
     "358": "ax"
 };
 
-const maxCallingCodeLength = 7;
 const flagImagesFolderPath = "https://raw.githubusercontent.com/todeit02/whatsapp_web_country_flags_userscript/master/flags/";
 const phoneNumberChatSelector = ".WJuYU";
-const chatRowClass = "vW7d1";
 const initialInsertId = "main";
 const insertingFlagsClass = "phoneNumberCountryFlag";
 
