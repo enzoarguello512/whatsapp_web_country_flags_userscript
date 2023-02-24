@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WhatsApp Web Country Flags
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      0.1.1
 // @description  Inserts flag images in front of phone numbers not saved as contact.
 // @author       Tobias Deißler
 // @match        https://web.whatsapp.com/
@@ -262,7 +262,7 @@ const callingCodeToCountryTable =
     "358": "ax"
 };
 
-const flagImagesFolderPath = "https://raw.githubusercontent.com/todeit02/whatsapp_web_country_flags_userscript/master/flags/";
+const flagImagesFolderPath = "https://raw.githubusercontent.com/todeit02/whatsapp_web_country_flags_userscript/master/flags";
 const phoneNumberChatSelector = ".WJuYU";
 const initialInsertId = "main";
 const insertingFlagsClass = "phoneNumberCountryFlag";
